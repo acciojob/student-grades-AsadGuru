@@ -1,16 +1,93 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
-	<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Average Grade Calculator</title>
 </head>
-
 <body>
-	<!-- the entire body must be written by student -->
-    <script type="text/javascript" src="./script.js">
-</script>
+  <h1>Calculate Average Grade for Students</h1>
+  
+  <!-- Input form to upload CSV file -->
+  <input type="file" id="fileInput" accept=".csv" />
+  <button onclick="processFile()">Calculate Average Grades</button>
+
+  <!-- Section to display results -->
+  <h2>Students and Average Grades</h2>
+  <div id="results"></div>
+
+  <script>
+    // Function to process the uploaded file and calculate the average grades
+    function processFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Please upload a CSV file.");
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = function (event) {
+        const fileContent = event.target.result;
+        const students = parseCSV(fileContent);
+        displayResults(students);
+      };
+
+      // Read the file as text
+      reader.readAsText(file);
+    }
+
+    // Function to parse CSV content and calculate average grades for each student
+    function parseCSV(content) {
+      const lines = content.split('\n'); // Split the CSV into rows
+      const students = [];
+
+      // Loop through each row, starting from the second row (skip header)
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].trim();
+        if (!row) continue; // Skip empty rows
+
+        const columns = row.split(','); // Split each row into columns
+
+        const name = columns[0];
+        const grades = columns.slice(1).map(Number); // Get grades as numbers
+
+        // Calculate the average grade
+        const averageGrade = grades.reduce((sum, grade) => sum + grade, 0) / grades.length;
+
+        // Push student data into the students array
+        students.push({
+          name: name,
+          averageGrade: averageGrade.toFixed(2) // Round to two decimal places
+        });
+      }
+
+      return students;
+    }
+
+    // Function to display the results on the page
+    function displayResults(students) {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = ''; // Clear previous results
+
+      // Create a table to display the student data
+      const table = document.createElement('table');
+      table.style.border = '1px solid black';
+      const header = table.insertRow();
+      header.innerHTML = '<th>Student Name</th><th>Average Grade</th>';
+
+      // Loop through students and add rows to the table
+      students.forEach(student => {
+        const row = table.insertRow();
+        row.innerHTML = `<td>${student.name}</td><td>${student.averageGrade}</td>`;
+      });
+
+      // Append the table to the results div
+      resultsDiv.appendChild(table);
+    }
+  </script>
 
 </body>
-
 </html>
